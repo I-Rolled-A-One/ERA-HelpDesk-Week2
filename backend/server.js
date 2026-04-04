@@ -205,21 +205,25 @@ app.post('/ticket-notes', async (req, res) => {
     }
     try {
         const mongoDb = getMongo();
+        if (!mongoDb) {
+            return res.status(500).json({ error: "database not connected"});
+        }
         const result = await mongoDb.collection('ticket_notes').insertOne({
             ticket_id: parseInt(ticket_id),
             note: note,
             added_by: added_by,
             created_at: new Date()
         });
+                    res.status(201).json({
+            message: 'note added succcessfully',
+            noteId: result.insertedId
+        });
 
     } catch (error) {
         console.error('Error adding note:', error);
         res.status(500).json({error:'Failed to add note'});
     }
-            res.status(201).json({
-            message: 'note added succcessfully',
-            noteId: result.insertedId
-        });
+
 });
 
 // POST /activity-logs - Manually create an activity log in MongoDB
